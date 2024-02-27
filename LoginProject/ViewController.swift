@@ -45,7 +45,7 @@ class ViewController: UIViewController {
         tf.autocorrectionType = .no // 자동 수정 설정 X
         tf.spellCheckingType = .no // 맞춤법 검사 설정 X
         tf.keyboardType = .emailAddress
-        
+        tf.addTarget(self, action: #selector(textFieldEditingChanged(_:)), for: .editingChanged)
         return tf
     }()
     
@@ -83,7 +83,7 @@ class ViewController: UIViewController {
         tf.spellCheckingType = .no
         tf.isSecureTextEntry = true // 입력된 값 복사 방지 및 *로 표시
         tf.clearsOnBeginEditing = false // 편집 시 기존 텍스트필드값 제거
-        
+        tf.addTarget(self, action: #selector(textFieldEditingChanged(_:)), for: .editingChanged)
         return tf
     }()
     
@@ -109,7 +109,7 @@ class ViewController: UIViewController {
         btn.setTitleColor(UIColor.lightGray, for: .normal)
         btn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         btn.isEnabled = false // 버튼 비활성화
-        
+        btn.addTarget(self, action: #selector(loginBtnTapped), for: .touchUpInside)
         return btn
     }()
     
@@ -132,6 +132,12 @@ class ViewController: UIViewController {
         btn.addTarget(self, action: #selector(resetBtnTapped), for: .touchUpInside)
         return btn
     }()
+    
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+         self.view.endEditing(true)
+    }
+    
     
     // 3개의 각 텍스트필드 및 로그인 버튼의 높이 설정
     private let textViewHeight: CGFloat = 48
@@ -244,9 +250,13 @@ class ViewController: UIViewController {
         }
     }
     
-    @objc func passwordSecureModeSetting(){
+    @objc func passwordSecureModeSetting() {
         //print(#function)
         passwordTextField.isSecureTextEntry.toggle() // 개편한 함수,,
+    }
+    
+    @objc func loginBtnTapped() {
+        print(#function)
     }
 }
 
@@ -295,6 +305,26 @@ extension ViewController: UITextFieldDelegate {
         UIView.animate(withDuration: 0.3) {
             self.stackView.layoutIfNeeded()
         }
+    }
+    
+    @objc func textFieldEditingChanged(_ textField: UITextField) {
+        if textField.text?.count == 1 {
+            if textField.text?.first == " " {
+                textField.text = ""
+                return
+            }
+        }
+        
+        guard
+            let email = emailTextField.text, !email.isEmpty,
+            let password = passwordTextField.text, !password.isEmpty
+        else {
+            loginBtn.backgroundColor = .clear
+            loginBtn.isEnabled = false
+            return
+        }
+        loginBtn.backgroundColor = .red
+        loginBtn.isEnabled = true
     }
 }
 
